@@ -3,7 +3,7 @@ var MAZE = {
         this.options = {
             width: 11,
             height: 11,
-            generator: MAZE.Generator.depthfirst
+            generator: MAZE.Generator.DepthFirst
         }
                 
         $.extend(this.options, options);
@@ -116,25 +116,26 @@ var MAZE = {
      * http://en.wikipedia.org/wiki/Maze_generation_algorithm
      */
     Generator: {
-        depthfirst: {
+        DepthFirst: {
+            directions: ['N', 'E', 'S', 'W'],
             processCell: function(cell) {
                 var neighbors = cell.getNeighbors();
                 cell.visited = true;
                 
-                var keys = _.shuffle(['N', 'E', 'S', 'W']);
+                var keys = _.shuffle(this.directions);
                 
                 for(var k in keys)
                 {
-                    var i = keys[k];
-                    if(neighbors[i] == null || neighbors[i].visited)
+                    var d = keys[k];
+                    if(neighbors[d] == null || neighbors[d].visited)
                         continue;
                     
-                    neighbors[i].visited = true;
-                    neighbors[i].isMaze = true;
+                    neighbors[d].visited = true;
+                    neighbors[d].isMaze = true;
                     
-                    cell.maze.removeWallBetween(cell, neighbors[i]);
+                    cell.maze.removeWallBetween(cell, neighbors[d]);
                     
-                    this.processCell(neighbors[i]);
+                    this.processCell(neighbors[d]);
                 }
             },            
             generate: function(maze) {
