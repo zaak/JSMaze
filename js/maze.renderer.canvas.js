@@ -13,7 +13,7 @@ MAZE.Renderer.Canvas = function(options) {
     $.extend(this.options, options);
 
     if (!options.container) {
-        throw "CanvasRenderer 'container' option is not specipied!";
+        throw "Canvas Renderer 'container' option is not specipied!";
     }
 
     this.renderCell = function(cell) {
