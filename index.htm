@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Teh app</title>
+    </head>
+    <body>
+        <div id="maze-container"></div>
+        <script src="js/jquery-1.11.0.js"></script>
+        <script src="js/underscore-min.js"></script>
+        <script src="js/maze.js"></script>
+        <script src="js/maze.renderer.canvas.js"></script>
+        <script>
+            var maze = new MAZE.Maze();
+            maze.generate();
+            var renderer = new MAZE.Renderer.Canvas({
+                container: '#maze-container'
+            });
+            maze.render(renderer);
+        </script>
+    </body>
+</html>
