@@ -9,6 +9,9 @@ MAZE.Renderer.Canvas = function(options) {
         cellWidth: 10,
         cellHeight: 10,
     }
+    
+    this.currentCellX;
+    this.currentCellY;
 
     $.extend(this.options, options);
 
@@ -56,6 +59,13 @@ MAZE.Renderer.Canvas = function(options) {
 //        {
 //            this.c2d.fillRect(cell.x * cw, cell.y * ch, cw, ch);
 //        }
+
+        if(this.currentCellX === cell.x && this.currentCellY === cell.y) {
+            this.c2d.save();
+            this.c2d.fillStyle = "#f00";
+            this.c2d.fillRect(cell.x * cw + 2, cell.y * ch + 2 , cw - 4, ch - 4);
+            this.c2d.restore();
+        }
     }
 }
 

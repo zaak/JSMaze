@@ -154,7 +154,20 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
         var camX = camera.position.x;
         var camZ = camera.position.z;
         
+        // Get cell x/y by camera position
         
+        var cellX, cellY;
+        cellY = Math.floor(Math.abs(camX) / that.options.cellWidth);
+        cellX = Math.floor(Math.abs(camZ) / that.options.cellHeight);
+        
+        if(canvasRenderer)
+        {
+            canvasRenderer.currentCellX = cellX;
+            canvasRenderer.currentCellY = cellY;
+            
+            canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
+            canvasRenderer.render();
+        }
     }
     
     var time = Date.now();
