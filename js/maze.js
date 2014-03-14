@@ -29,7 +29,7 @@ var MAZE = {
             }
             
             // Generate maze
-            this.options.generator.generate(this);
+           this.options.generator.generate(this);
         }
         
         this.getCell = function(x, y) {
@@ -143,7 +143,20 @@ var MAZE = {
                 var h = maze.options.height;
                 var startingCell = maze.getCell(Math.floor(w/2), h-1);
                 startingCell.isMaze = true;
-                this.processCell(startingCell);
+                startingCell.isStartingCell = true;
+                
+                // Always open to north
+                var sNeighbors = startingCell.getNeighbors();
+                var nNeighbor = sNeighbors.N;
+                
+                maze.removeWallBetween(startingCell, nNeighbor);
+                
+                this.processCell(nNeighbor);
+            }
+        },
+        Null: {
+            generate: function(maze) {
+                
             }
         }
     }

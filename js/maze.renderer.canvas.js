@@ -6,8 +6,8 @@ MAZE.Renderer.Canvas = function(options) {
     this.canvasHeight = undefined;
 
     this.options = {
-        cellWidth: 20,
-        cellHeight: 20,
+        cellWidth: 10,
+        cellHeight: 10,
     }
 
     $.extend(this.options, options);
@@ -52,14 +52,14 @@ MAZE.Renderer.Canvas = function(options) {
             this.c2d.stroke();
         }
 
-        if (!cell.isMaze)
-        {
-            this.c2d.fillRect(cell.x * cw, cell.y * ch, cw, ch);
-        }
+//        if (!cell.isMaze)
+//        {
+//            this.c2d.fillRect(cell.x * cw, cell.y * ch, cw, ch);
+//        }
     }
 }
 
-MAZE.Renderer.Canvas.prototype = MAZE.AbastractRenderer;
+MAZE.Renderer.Canvas.prototype = new MAZE.Renderer.Abstract();
 
 MAZE.Renderer.Canvas.prototype.init = function(maze) {
     MAZE.Renderer.Abstract.prototype.init.call(this, maze);
