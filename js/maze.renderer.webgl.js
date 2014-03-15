@@ -28,6 +28,11 @@ MAZE.Renderer.WebGL = function(options) {
         cellGround.position.z = cell.x * ch;
         cellGround.rotation.x = - Math.PI / 2;
         this.scene.add(cellGround);
+        
+        cell.pos = {
+            x: -cell.y * cw,
+            z: cell.x * ch - (ch / 2)
+        }
 
         if (cell.walls.N)
         {
@@ -86,28 +91,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     var scene = this.scene;
     //scene.fog = new THREE.Fog( 0xcce0ff, 500, 100000 );
     
-    var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 40000);
-    camera.position.x = -10700;
-    camera.position.y = 330;
-    camera.position.z = 5000;
-        
-    this.camera = camera;
-    
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth-20, window.innerHeight-20);
-    //renderer.setClearColor( scene.fog.color );
-				renderer.gammaInput = true;
-				renderer.gammaOutput = true;
-    $(this.options.container).append(renderer.domElement);
-    
-
-    
-    var controls = new THREE.FirstPersonControls(camera);
-    controls.movementSpeed = 1;
-    controls.lookSpeed = 0.0001;
-    controls.lookVertical = false;
-    
-    // add subtle blue ambient lighting
+    // ambient lighting
     var ambientLight = new THREE.AmbientLight(0x666666);
     scene.add(ambientLight);
     
@@ -144,12 +128,46 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     wallTexture.repeat.set(10, 10);
     wallTexture.anisotropy = 16;
     
+
+    
+
+}
+
+MAZE.Renderer.WebGL.prototype.render = function() {
+    MAZE.Renderer.Abstract.prototype.render.call(this);
+    
+    var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 40000);
+    camera.position.x = -10700;
+    camera.position.y = 330;
+    camera.position.z = 5000;
+        
+    this.camera = camera;
+    
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth-20, window.innerHeight-20);
+    //renderer.setClearColor( scene.fog.color );
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+    $(this.options.container).append(renderer.domElement);
+    
+
+    
+    var controls = new THREE.FirstPersonControls(camera);
+    controls.movementSpeed = 1;
+    controls.lookSpeed = 0.0001;
+    controls.lookVertical = false;
+    
     // stats
     var stats = new Stats();
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.top = '0px';
     $(this.options.container).append(stats.domElement);
-        
+    
+    this.cellCollisionPadding = 100;
+    
+    var that = this;
+    var currentCell = null;
+    
     function hasCollision() {
         var camX = camera.position.x;
         var camZ = camera.position.z;
@@ -158,24 +176,83 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
         
         var cellX, cellY;
         cellY = Math.floor(Math.abs(camX) / that.options.cellWidth);
-        cellX = Math.floor(Math.abs(camZ) / that.options.cellHeight);
+        cellX = Math.floor((Math.abs(camZ) + that.options.cellHeight / 2) / that.options.cellHeight );
         
-        if(canvasRenderer)
+        if(canvasRenderer && (cellX != canvasRenderer.currentCellX || cellY != canvasRenderer.currentCellY))
         {
             canvasRenderer.currentCellX = cellX;
             canvasRenderer.currentCellY = cellY;
             
+            console.log(cellX, cellY);
+            console.log('CELL', this.maze.getCell(cellX, cellY).pos);
+        
             canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
             canvasRenderer.render();
         }
+        
+        if(currentCell == null || currentCell.x != cellX || currentCell.y != cellY)
+        {
+            currentCell = this.maze.getCell(cellX, cellY);
+        }
+        
+        if(!currentCell)
+            return true;
+
+        if(currentCell.walls.N)
+        {
+            if(camX > currentCell.pos.x - that.cellCollisionPadding)
+            {
+                console.log('Collison N');
+                return true;
+            }
+        }
+        
+        if(currentCell.walls.E)
+        {
+            if(camZ > currentCell.pos.z + that.options.cellWidth - that.cellCollisionPadding)
+            {
+                console.log('Collison E');
+                return true;
+            }
+        }
+        
+        if(currentCell.walls.S)
+        {
+            if(camX < currentCell.pos.x - that.options.cellHeight + that.cellCollisionPadding)
+            {
+                console.log('Collison S');
+                return true;
+            }
+        }
+        
+        if(currentCell.walls.W)
+        {
+            if(camZ < currentCell.pos.z + that.cellCollisionPadding)
+            {
+                console.log('Collison W');
+                return true;
+            }
+        }
+        
+        return false;
     }
     
+    var scene = this.scene;
     var time = Date.now();
+    var lastValidPos = {};
     var render = function() {
         requestAnimationFrame(render);
         stats.update();
         if(hasCollision())
-            return;
+        {
+            camera.position.set(lastValidPos.x, lastValidPos.y, lastValidPos.z);
+        }
+        else
+        {
+            lastValidPos.x = camera.position.x;
+            lastValidPos.y = camera.position.y;
+            lastValidPos.z = camera.position.z;
+        }
         controls.update(Date.now() - time);
         renderer.render(scene, camera);
         time = Date.now();
