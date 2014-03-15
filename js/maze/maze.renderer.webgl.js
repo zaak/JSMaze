@@ -6,6 +6,7 @@ MAZE.Renderer.WebGL = function(options) {
     this.wallMaterial = undefined;
     this.wallGeometry = undefined;
     this.wall = undefined;
+    this.godmode = false;
 
     this.options = {
         cellWidth: 1000,
@@ -17,6 +18,11 @@ MAZE.Renderer.WebGL = function(options) {
 
     if (!options.container) {
         throw "WebGL Renderer 'container' option is not specipied!";
+    }
+    
+    this.setGodmode = function(enableGodmode)
+    {
+        this.godmode = this.controls.lookVertical =enableGodmode;
     }
 
     this.renderCell = function(cell) {
@@ -114,7 +120,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     var that = this;
     var groundTexture = THREE.ImageUtils.loadTexture( "assets/textures/grasslight-big.jpg", undefined, function() { that.groundMaterial.map = groundTexture; } );
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(2, 2);
+    groundTexture.repeat.set(1, 1);
     groundTexture.anisotropy = 16;
 
     
@@ -127,7 +133,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     var wallTexture = THREE.ImageUtils.loadTexture( "assets/textures/bricks.jpg", undefined, function() { that.wallMaterial.map = wallTexture; } );
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.repeat.set(10, 10);
-    wallTexture.anisotropy = 16;
+    wallTexture.anisotropy = 4;
     
 
     
@@ -156,7 +162,8 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     var controls = new THREE.FirstPersonControls(camera);
     controls.movementSpeed = 1;
     controls.lookSpeed = 0.0001;
-    //controls.lookVertical = false;
+    controls.lookVertical = false;
+    this.controls = controls;
     
     // stats
     var stats = new Stats();
@@ -170,7 +177,6 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     var currentCell = null;
     
     function hasCollision() {
-        return false;
         
         var camX = camera.position.x;
         var camZ = camera.position.z;
@@ -178,8 +184,8 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         // Get cell x/y by camera position
         
         var cellX, cellY;
-        cellY = Math.floor(Math.abs(camX) / that.options.cellWidth);
-        cellX = Math.floor((Math.abs(camZ) + that.options.cellHeight / 2) / that.options.cellHeight );
+        cellY = Math.floor((camX * -1) / that.options.cellWidth);
+        cellX = Math.floor((camZ + that.options.cellHeight / 2) / that.options.cellHeight );
         
         if(currentCell == null || currentCell.x != cellX || currentCell.y != cellY)
         {
@@ -188,6 +194,11 @@ MAZE.Renderer.WebGL.prototype.render = function() {
             {
                 that.options.onCellChange(currentCell);
             }
+        }
+        
+        if(that.godmode)
+        {
+            return false;
         }
         
         if(!currentCell)

@@ -2,8 +2,6 @@ var PIGMAZE = {
     Game: function() {
         var maze, canvasRenderer, webGLRenderer;
 
-
-
         this.start = function() {
             maze = new MAZE.Maze();
             maze.generate();
@@ -16,6 +14,9 @@ var PIGMAZE = {
             webGLRenderer = new MAZE.Renderer.WebGL({
                 container: '#maze-container',
                 onCellChange: function(cell) {
+                    if(cell == null)
+                        return;
+                    
                     if (cell.x != canvasRenderer.currentCellX || cell.y != canvasRenderer.currentCellY)
                     {
                         canvasRenderer.currentCellX = cell.x;
@@ -43,6 +44,11 @@ var PIGMAZE = {
                 webGLRenderer.scene.add(object);
 
             });
+        }
+        
+        this.setGodMode = function(enableGodmode)
+        {
+            webGLRenderer.setGodmode(enableGodmode);
         }
     }
 }
