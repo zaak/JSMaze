@@ -30,15 +30,30 @@
         <script>
             var maze = new MAZE.Maze();
             maze.generate();
-            var renderer = new MAZE.Renderer.WebGL({
-                container: '#maze-container'
-            });
-            maze.render(renderer);
             
             var canvasRenderer = new MAZE.Renderer.Canvas({
                 container: '#maze-map-container'
             });
+            
             maze.render(canvasRenderer);
+            var webGLRenderer = new MAZE.Renderer.WebGL({
+                container: '#maze-container',
+                onCellChange: function(cell) {
+                    if(cell.x != canvasRenderer.currentCellX || cell.y != canvasRenderer.currentCellY)
+                    {
+                        canvasRenderer.currentCellX = cell.x;
+                        canvasRenderer.currentCellY = cell.y;
+
+                        console.log(cell.x, cell.y);
+                        console.log('CELL', cell.pos);
+
+                        canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
+                        canvasRenderer.render();
+                    }
+                }
+            });
+            maze.render(webGLRenderer);
+            
         </script>
     </body>
 </html>

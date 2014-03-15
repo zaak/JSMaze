@@ -9,7 +9,8 @@ MAZE.Renderer.WebGL = function(options) {
 
     this.options = {
         cellWidth: 1000,
-        cellHeight: 1000
+        cellHeight: 1000,
+        onCellChange: null
     };
 
     $.extend(this.options, options);
@@ -178,21 +179,13 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         cellY = Math.floor(Math.abs(camX) / that.options.cellWidth);
         cellX = Math.floor((Math.abs(camZ) + that.options.cellHeight / 2) / that.options.cellHeight );
         
-        if(canvasRenderer && (cellX != canvasRenderer.currentCellX || cellY != canvasRenderer.currentCellY))
-        {
-            canvasRenderer.currentCellX = cellX;
-            canvasRenderer.currentCellY = cellY;
-            
-            console.log(cellX, cellY);
-            console.log('CELL', this.maze.getCell(cellX, cellY).pos);
-        
-            canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
-            canvasRenderer.render();
-        }
-        
         if(currentCell == null || currentCell.x != cellX || currentCell.y != cellY)
         {
             currentCell = this.maze.getCell(cellX, cellY);
+            if(that.options.onCellChange)
+            {
+                that.options.onCellChange(currentCell);
+            }
         }
         
         if(!currentCell)
