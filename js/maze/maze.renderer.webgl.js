@@ -156,7 +156,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     var controls = new THREE.FirstPersonControls(camera);
     controls.movementSpeed = 1;
     controls.lookSpeed = 0.0001;
-    controls.lookVertical = false;
+    //controls.lookVertical = false;
     
     // stats
     var stats = new Stats();
@@ -170,6 +170,8 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     var currentCell = null;
     
     function hasCollision() {
+        return false;
+        
         var camX = camera.position.x;
         var camZ = camera.position.z;
         
@@ -181,7 +183,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         
         if(currentCell == null || currentCell.x != cellX || currentCell.y != cellY)
         {
-            currentCell = this.maze.getCell(cellX, cellY);
+            currentCell = that.maze.getCell(cellX, cellY);
             if(that.options.onCellChange)
             {
                 that.options.onCellChange(currentCell);

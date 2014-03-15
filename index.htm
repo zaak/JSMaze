@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Teh app</title>
+        <title>Pig Maze</title>
         <style type="text/css">
             #maze-map-container {
                 position: absolute;
@@ -22,38 +22,17 @@
         <script src="js/vendor/jquery-1.11.0.js"></script>
         <script src="js/vendor/underscore-min.js"></script>
         <script src="js/vendor/three/three.js"></script>
+        <script src="js/vendor/three/libs/MTLLoader.js"></script>
+        <script src="js/vendor/three/libs/OBJMTLLoader.js"></script>
         <script src="js/vendor/three/libs/FirstPersonControls.js"></script>
         <script src="js/vendor/three/libs/stats.min.js"></script>
         <script src="js/maze/maze.js"></script>
         <script src="js/maze/maze.renderer.webgl.js"></script>
         <script src="js/maze/maze.renderer.canvas.js"></script>
+        <script src="js/pigmaze/pigmaze.game.js"></script>
         <script>
-            var maze = new MAZE.Maze();
-            maze.generate();
-            
-            var canvasRenderer = new MAZE.Renderer.Canvas({
-                container: '#maze-map-container'
-            });
-            
-            maze.render(canvasRenderer);
-            var webGLRenderer = new MAZE.Renderer.WebGL({
-                container: '#maze-container',
-                onCellChange: function(cell) {
-                    if(cell.x != canvasRenderer.currentCellX || cell.y != canvasRenderer.currentCellY)
-                    {
-                        canvasRenderer.currentCellX = cell.x;
-                        canvasRenderer.currentCellY = cell.y;
-
-                        console.log(cell.x, cell.y);
-                        console.log('CELL', cell.pos);
-
-                        canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
-                        canvasRenderer.render();
-                    }
-                }
-            });
-            maze.render(webGLRenderer);
-            
+            var game = new PIGMAZE.Game();
+            game.start();
         </script>
     </body>
 </html>
