@@ -209,7 +209,9 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 		var actualMoveSpeed = delta * this.movementSpeed;
 
-		if ( this.moveForward || ( this.autoForward && !this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
+		if ( this.moveForward || ( this.autoForward && !this.moveBackward ) ) {
+                    this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
+                }
 		if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
 
 		if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
@@ -217,6 +219,8 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 		if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
 		if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
+                
+                this.object.position.y = 430;
 
 		var actualLookSpeed = delta * this.lookSpeed;
 

@@ -94,6 +94,7 @@ var MAZE = {
         this.x = x;
         this.y = y;
         this.isMaze = false;
+        this.isFinish = false;
         
         this.getNeighbors = function()
         {

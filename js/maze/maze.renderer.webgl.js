@@ -2,6 +2,7 @@ MAZE.Renderer.WebGL = function(options) {
 
     this.scene = new THREE.Scene();
     this.groundMaterial = undefined;
+    this.finishGroundMaterial = undefined;
     this.groundGeometry = undefined;
     this.wallMaterial = undefined;
     this.wallGeometry = undefined;
@@ -22,7 +23,7 @@ MAZE.Renderer.WebGL = function(options) {
     
     this.setGodmode = function(enableGodmode)
     {
-        this.godmode = this.controls.lookVertical =enableGodmode;
+        this.godmode = enableGodmode;
     }
 
     this.renderCell = function(cell) {
@@ -30,7 +31,7 @@ MAZE.Renderer.WebGL = function(options) {
         var ch = this.options.cellHeight;
         var gw = this.maze.options.width * cw;
         
-        var cellGround = new THREE.Mesh(this.groundGeometry, this.groundMaterial);
+        var cellGround = new THREE.Mesh(this.groundGeometry, cell.isFinish ? this.finishGroundMaterial : this.groundMaterial);
         cellGround.position.x = -cell.y * cw - (cw / 2) - 25;
         cellGround.position.z = cell.x * ch;
         cellGround.rotation.x = - Math.PI / 2;
@@ -103,7 +104,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     scene.add(ambientLight);
     
     // directional lighting
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 1.7);
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
     directionalLight.position.set( 50, 200, 100 ).normalize();
     directionalLight.position.multiplyScalar( 1.3 );
 
@@ -117,12 +118,18 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
 
     this.groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: initTexture } );
 
-    var that = this;
-    var groundTexture = THREE.ImageUtils.loadTexture( "assets/textures/grasslight-big.jpg", undefined, function() { that.groundMaterial.map = groundTexture; } );
+    var _this = this;
+    var groundTexture = THREE.ImageUtils.loadTexture( "assets/textures/grasslight-big.jpg", undefined, function() { _this.groundMaterial.map = groundTexture; } );
     groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(1, 1);
     groundTexture.anisotropy = 16;
-
+    
+    // Hay texture
+    this.finishGroundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: initTexture } );
+    var finishGroundTexture = THREE.ImageUtils.loadTexture( "assets/textures/hay.jpg", undefined, function() { _this.finishGroundMaterial.map = finishGroundTexture; } );
+    finishGroundTexture.wrapS = finishGroundTexture.wrapT = THREE.RepeatWrapping;
+    finishGroundTexture.repeat.set(4, 4);
+    finishGroundTexture.anisotropy = 16;
     
     // Maze cell wall
     this.wallGeometry = new THREE.CubeGeometry(this.options.cellWidth, this.options.cellHeight, 50);
@@ -130,7 +137,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     var wallInitTexture = THREE.ImageUtils.generateDataTexture( 1, 1, wallInitColor );
     
     this.wallMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: wallInitTexture } );
-    var wallTexture = THREE.ImageUtils.loadTexture( "assets/textures/bricks.jpg", undefined, function() { that.wallMaterial.map = wallTexture; } );
+    var wallTexture = THREE.ImageUtils.loadTexture( "assets/textures/bricks.jpg", undefined, function() { _this.wallMaterial.map = wallTexture; } );
     wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.repeat.set(10, 10);
     wallTexture.anisotropy = 4;
@@ -145,7 +152,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     
     var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 40000);
     camera.position.x = -10700;
-    camera.position.y = 330;
+    camera.position.y = 430;
     camera.position.z = 5000;
         
     this.camera = camera;
@@ -162,7 +169,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     var controls = new THREE.FirstPersonControls(camera);
     controls.movementSpeed = 1;
     controls.lookSpeed = 0.0001;
-    controls.lookVertical = false;
+    controls.lookVertical = true;
     this.controls = controls;
     
     // stats
@@ -173,7 +180,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     
     this.cellCollisionPadding = 100;
     
-    var that = this;
+    var _this = this;
     var currentCell = null;
     
     function hasCollision() {
@@ -184,19 +191,19 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         // Get cell x/y by camera position
         
         var cellX, cellY;
-        cellY = Math.floor((camX * -1) / that.options.cellWidth);
-        cellX = Math.floor((camZ + that.options.cellHeight / 2) / that.options.cellHeight );
+        cellY = Math.floor((camX * -1) / _this.options.cellWidth);
+        cellX = Math.floor((camZ + _this.options.cellHeight / 2) / _this.options.cellHeight );
         
         if(currentCell == null || currentCell.x != cellX || currentCell.y != cellY)
         {
-            currentCell = that.maze.getCell(cellX, cellY);
-            if(that.options.onCellChange)
+            currentCell = _this.maze.getCell(cellX, cellY);
+            if(_this.options.onCellChange)
             {
-                that.options.onCellChange(currentCell);
+                _this.options.onCellChange(currentCell);
             }
         }
         
-        if(that.godmode)
+        if(_this.godmode)
         {
             return false;
         }
@@ -206,7 +213,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
 
         if(currentCell.walls.N)
         {
-            if(camX > currentCell.pos.x - that.cellCollisionPadding)
+            if(camX > currentCell.pos.x - _this.cellCollisionPadding)
             {
                 console.log('Collison N');
                 return true;
@@ -215,7 +222,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         
         if(currentCell.walls.E)
         {
-            if(camZ > currentCell.pos.z + that.options.cellWidth - that.cellCollisionPadding)
+            if(camZ > currentCell.pos.z + _this.options.cellWidth - _this.cellCollisionPadding)
             {
                 console.log('Collison E');
                 return true;
@@ -224,7 +231,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         
         if(currentCell.walls.S)
         {
-            if(camX < currentCell.pos.x - that.options.cellHeight + that.cellCollisionPadding)
+            if(camX < currentCell.pos.x - _this.options.cellHeight + _this.cellCollisionPadding)
             {
                 console.log('Collison S');
                 return true;
@@ -233,7 +240,7 @@ MAZE.Renderer.WebGL.prototype.render = function() {
         
         if(currentCell.walls.W)
         {
-            if(camZ < currentCell.pos.z + that.cellCollisionPadding)
+            if(camZ < currentCell.pos.z + _this.cellCollisionPadding)
             {
                 console.log('Collison W');
                 return true;
