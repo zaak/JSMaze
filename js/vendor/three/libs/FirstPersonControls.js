@@ -157,11 +157,13 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 			case 82: /*R*/ this.moveUp = true; break;
 			case 70: /*F*/ this.moveDown = true; break;
 
-			case 81: /*Q*/ this.freeze = !this.freeze; console.log('CAM', object.position); break;
+			case 81: /*Q*/ this.freeze = !this.freeze; this.onFreeze(this.freeze); break;
 
 		}
 
 	};
+        
+        this.onFreeze = function() {};
 
 	this.onKeyUp = function ( event ) {
 
@@ -220,7 +222,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
 		if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
                 
-                this.object.position.y = 430;
+                this.object.position.y = 630;
 
 		var actualLookSpeed = delta * this.lookSpeed;
 

@@ -1,13 +1,20 @@
 MAZE.Renderer.Canvas = function(options) {
+    var _this = this;
     this.canvas = undefined;
     this.c2d = undefined;
 
     this.canvasWidth = undefined;
     this.canvasHeight = undefined;
+    
+    this.chiefImage = new Image();
+    this.chiefImage.src = 'assets/icons/chief.png';
+    
+    this.pigImage = new Image();
+    this.pigImage.src = 'assets/icons/pig.png';
 
     this.options = {
-        cellWidth: 10,
-        cellHeight: 10,
+        cellWidth: 45,
+        cellHeight: 45,
     }
     
     this.currentCellX;
@@ -61,10 +68,21 @@ MAZE.Renderer.Canvas = function(options) {
 //        }
 
         if(this.currentCellX === cell.x && this.currentCellY === cell.y) {
-            this.c2d.save();
-            this.c2d.fillStyle = "#f00";
-            this.c2d.fillRect(cell.x * cw + 2, cell.y * ch + 2 , cw - 4, ch - 4);
-            this.c2d.restore();
+            if(this.chiefImage.complete)
+                this.c2d.drawImage(this.chiefImage, cell.x * cw, cell.y * ch);
+            else
+                this.chiefImage.onload = function() {
+                    _this.c2d.drawImage(_this.chiefImage, cell.x * cw, cell.y * ch);
+                }
+        }
+        
+        if(cell.isFinish) {
+            if(this.pigImage.complete)
+                this.c2d.drawImage(this.pigImage, cell.x * cw + 5, cell.y * ch + 5);
+            else
+                this.pigImage.onload = function() {
+                    _this.c2d.drawImage(_this.pigImage, cell.x * cw + 5, cell.y * ch + 5);
+                }
         }
     }
 }

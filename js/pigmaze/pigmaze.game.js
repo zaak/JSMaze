@@ -1,7 +1,7 @@
 var PIGMAZE = {
     Game: function() {
         var _this = this;
-        var maze, canvasRenderer, webGLRenderer, finishCell, isGameOver = false;
+        var maze, canvasRenderer, webGLRenderer, finishCell, isGameOver = false, gameStarted = false;
         
         this.pigObject;
         this.pigObjectScale = 200;
@@ -53,6 +53,16 @@ var PIGMAZE = {
                     }
                     
                     _this.onCellChange(cell);
+                },
+                onFreeze: function(frozen) {
+                    if(!gameStarted) {
+                        _this.gameStart();
+                    }
+                    
+                    $('#maze-map-container-wrapper').toggle(frozen);   
+
+                    canvasRenderer.c2d.clearRect(0, 0, canvasRenderer.canvas.width(), canvasRenderer.canvas.height());
+                    canvasRenderer.render();
                 }
             });
             maze.render(webGLRenderer);
@@ -119,6 +129,10 @@ var PIGMAZE = {
             }, 100);
             
             console.log('Game Over!');
+        }
+        
+        this.gameStart = function() {
+            $('.pigmaze-hint').hide(); 
         }
         
         this.setGodMode = function(enableGodmode)

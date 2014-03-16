@@ -13,7 +13,8 @@ MAZE.Renderer.WebGL = function(options) {
     this.options = {
         cellWidth: 1000,
         cellHeight: 1000,
-        onCellChange: null
+        onCellChange: null,
+        onFreeze: null
     };
 
     $.extend(this.options, options);
@@ -165,6 +166,8 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     camera.position.x = -10700;
     camera.position.y = 630;
     camera.position.z = 5000;
+    
+    camera.lookAt(new THREE.Vector3(-6000, 0, 5000));
         
     this.camera = camera;
     
@@ -181,13 +184,16 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     controls.movementSpeed = 1;
     controls.lookSpeed = 0.0001;
     controls.lookVertical = true;
+    controls.freeze = true;
+    controls.onFreeze = this.options.onFreeze;
     this.controls = controls;
     
     // stats
     var stats = new Stats();
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.top = '0px';
-    $(this.options.container).append(stats.domElement);
+    stats.domElement.style.left = '0px';
+    $(document.body).append(stats.domElement);
     
     this.cellCollisionPadding = 100;
     
