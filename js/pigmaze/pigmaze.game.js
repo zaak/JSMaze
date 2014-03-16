@@ -3,6 +3,9 @@ var PIGMAZE = {
         var _this = this;
         var maze, canvasRenderer, webGLRenderer, finishCell, isGameOver = false;
         
+        this.pigObject;
+        this.pigObjectScale = 200;
+        
         var sounds = {
             random: [
                 new Audio('assets/sounds/pig_1.mp3'),
@@ -65,8 +68,10 @@ var PIGMAZE = {
 //                pigObject.position.y = 0;
 //                pigObject.position.z = webGLRenderer.camera.position.z;
                 pigObject.rotation.y = - Math.PI / 2;
-                pigObject.scale.set(200, 200, 200)
+                var s = _this.pigObjectScale;
+                pigObject.scale.set(s, s, s);
                 webGLRenderer.scene.add(pigObject);
+                _this.pigObject = pigObject;
 
             });
             
@@ -97,6 +102,22 @@ var PIGMAZE = {
             }
             
             sounds.finish.play();
+            
+            var rotatePigInterval = setInterval(function() {
+                _this.pigObject.rotation.y += 0.05;
+            }, 10);
+            
+            var shrinkPigInterval = setInterval(function() {
+                if(_this.pigObjectScale == 0)
+                {
+                    clearInterval(shrinkPigInterval);
+                    clearInterval(rotatePigInterval);
+                }
+                
+                _this.pigObject.scale.set(_this.pigObjectScale, _this.pigObjectScale, _this.pigObjectScale);
+                _this.pigObjectScale--;
+            }, 100);
+            
             console.log('Game Over!');
         }
         

@@ -5,6 +5,7 @@ MAZE.Renderer.WebGL = function(options) {
     this.finishGroundMaterial = undefined;
     this.groundGeometry = undefined;
     this.wallMaterial = undefined;
+    this.crateWallMaterial = undefined;
     this.wallGeometry = undefined;
     this.wall = undefined;
     this.godmode = false;
@@ -42,9 +43,10 @@ MAZE.Renderer.WebGL = function(options) {
             z: cell.x * ch - (ch / 2)
         }
 
+        var wallMaterial = cell.isFinish ? this.crateWallMaterial : this.wallMaterial;
         if (cell.walls.N)
         {
-            var wallN = new THREE.Mesh(this.wallGeometry, this.wallMaterial);
+            var wallN = new THREE.Mesh(this.wallGeometry, wallMaterial);
             
             wallN.position.x = -cell.y * cw - 50;
             wallN.position.y = (ch / 2);
@@ -56,7 +58,7 @@ MAZE.Renderer.WebGL = function(options) {
         
         if (cell.walls.E)
         {
-            var wallE = new THREE.Mesh(this.wallGeometry, this.wallMaterial);
+            var wallE = new THREE.Mesh(this.wallGeometry, wallMaterial);
             
             wallE.position.x = -cell.y * cw - (cw / 2) - 25;
             wallE.position.y = (ch / 2);
@@ -67,7 +69,7 @@ MAZE.Renderer.WebGL = function(options) {
         
         if (cell.walls.S)
         {
-            var wallS = new THREE.Mesh(this.wallGeometry, this.wallMaterial);
+            var wallS = new THREE.Mesh(this.wallGeometry, wallMaterial);
             
             wallS.position.x = -cell.y * cw - ch;
             wallS.position.y = (ch / 2);
@@ -79,7 +81,7 @@ MAZE.Renderer.WebGL = function(options) {
         
         if (cell.walls.W)
         {
-            var wallW = new THREE.Mesh(this.wallGeometry, this.wallMaterial);
+            var wallW = new THREE.Mesh(this.wallGeometry, wallMaterial);
             
             wallW.position.x = -cell.y * cw - (cw / 2) - 25;
             wallW.position.y = (ch / 2);
@@ -97,7 +99,7 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     MAZE.Renderer.Abstract.prototype.init.call(this, maze);
 
     var scene = this.scene;
-    //scene.fog = new THREE.Fog( 0xcce0ff, 500, 100000 );
+    scene.fog = new THREE.Fog( 0xcce0ff, 500, 100000 );
     
     // ambient lighting
     var ambientLight = new THREE.AmbientLight(0x666666);
@@ -142,7 +144,16 @@ MAZE.Renderer.WebGL.prototype.init = function(maze) {
     wallTexture.repeat.set(10, 10);
     wallTexture.anisotropy = 4;
     
-
+    // Maze cell wall
+    this.crateWallGeometry = new THREE.CubeGeometry(this.options.cellWidth, this.options.cellHeight, 50);
+    var crateWallInitColor = new THREE.Color(0x880000);
+    var crateWallInitTexture= THREE.ImageUtils.generateDataTexture( 1, 1, crateWallInitColor );
+    
+    this.crateWallMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: crateWallInitTexture} );
+    var crateWallTexture = THREE.ImageUtils.loadTexture( "assets/textures/crate.gif", undefined, function() { _this.crateWallMaterial.map = crateWallTexture; } );
+    crateWallTexture.wrapS = crateWallTexture.wrapT = THREE.RepeatWrapping;
+    crateWallTexture.repeat.set(1, 1);
+    crateWallTexture.anisotropy = 4;
     
 
 }
@@ -152,14 +163,14 @@ MAZE.Renderer.WebGL.prototype.render = function() {
     
     var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 40000);
     camera.position.x = -10700;
-    camera.position.y = 430;
+    camera.position.y = 630;
     camera.position.z = 5000;
         
     this.camera = camera;
     
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth-20, window.innerHeight-20);
-    //renderer.setClearColor( scene.fog.color );
+    renderer.setClearColor(this.scene.fog.color);
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
     $(this.options.container).append(renderer.domElement);
